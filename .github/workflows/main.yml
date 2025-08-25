@@ -1,0 +1,44 @@
+name: Android CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # রিপো ক্লোন
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # JDK সেটআপ (Java 17 LTS)
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # Gradle cache + wrapper setup
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      # Gradle দিয়ে প্রজেক্ট বিল্ড
+      - name: Build with Gradle
+        run: ./gradlew build
+
+      # Unit test চালানো
+      - name: Run Tests
+        run: ./gradlew test
+
+      # APK আর্টিফ্যাক্ট আপলোড
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
